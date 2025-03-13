@@ -9,8 +9,16 @@ router.get("/startingWith/:startingWith", (req, res, next)=>{
     controller.getArtistsStartingWith(req, res).catch(next);
 });
 
-router.get('/:artistName', (req, res, next)=>{
-    controller.getArtistByName(req, res).catch(next);
+router.get('/:idArtist', (req, res, next)=>{
+    controller.getArtist(req, res).catch(next);
 })
+
+router.delete('/:idArtist', (req, res, next)=>{
+    controller.deleteArtist(req, res).catch(next);
+});
+
+router.put('/', (req, res, next)=>{
+    controller.updateArtist(req, res).catch(next);
+});
 
 export default router;
