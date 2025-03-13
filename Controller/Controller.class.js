@@ -9,11 +9,12 @@ class Controller
     async query(sqlStatement, fields)
     {
         return new Promise((resolve, reject)=>{
-            Controller.db.query(sqlStatement, fields, (err, results)=>{
+            let qry = Controller.db.query(sqlStatement, fields, (err, results)=>{
                 if(err)
                 {
                     reject(err);
                 }
+                results.sql = qry.sql;
                 resolve(results);
             });
         });

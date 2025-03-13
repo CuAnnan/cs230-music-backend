@@ -70,10 +70,12 @@ class ArtistController extends Controller
 
     async updateArtist(req, res)
     {
+        //console.log(req);
         let result = await this.query(
             "UPDATE artists SET name = ?, monthlyListeners = ? WHERE idArtist = ?",
-            [req.params.name, req.params.monthlyListens, req.params.idArtist]
+            [req.body.name, req.body.monthlyListeners, req.body.idartist]
         );
+        res.json(result);
     }
 }
 
