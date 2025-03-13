@@ -14,6 +14,10 @@ class Controller
                 {
                     reject(err);
                 }
+                if(!results)
+                {
+                    results = {};
+                }
                 results.sql = qry.sql;
                 resolve(results);
             });
