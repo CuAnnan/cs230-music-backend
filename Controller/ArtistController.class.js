@@ -28,6 +28,20 @@ class ArtistController extends Controller
         {
             artist.genres.push(genre);
         }
+
+        let albums = await this.query(
+            "SELECT a.name, a.idAlbum " +
+                        "FROM albums_artists aa " +
+                        "LEFT JOIN albums a USING (idAlbum) " +
+                        "WHERE aa.idArtist = ?",
+            [req.params.idArtist]
+        );
+        artist.albums = [];
+        for(let album of albums)
+        {
+            artist.albums.push(album);
+        }
+
         res.json(artist);
     }
 

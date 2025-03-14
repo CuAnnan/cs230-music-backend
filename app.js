@@ -9,6 +9,7 @@ import Controller from './Controller/Controller.class.js';
 // routers
 import songs from './routes/songs.js';
 import artists from './routes/artists.js';
+import albums from './routes/albums.js';
 
 import { fileURLToPath } from 'url';
 
@@ -41,7 +42,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/songs/', songs);
 app.use('/artists/', artists);
-
+app.use('/albums/', albums);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
