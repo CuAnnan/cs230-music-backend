@@ -37,6 +37,46 @@ class GenreController extends Controller
 
     }
 
+    async getGenreIdsToAddToAuthor(idArtist, idGenres)
+    {
+        let genreToIds = {};
+        let existingGenreQuestionMarks = [];
+        let genreNames = [];
+
+        for(let pendingGenre of idGenres)
+        {
+            genreToIds[pendingGenre.name.toLowerCase()] = -1;
+            existingGenreQuestionMarks.push('?');
+            genreNames.push(pendingGenre.name);
+        }
+        let existingGenres = await this.query(
+            `SELECT * FROM genres WHERE name IN(${existingGenreQuestionMarks.join(',')})`,
+            genreNames
+        );
+
+        let existingGenreIds = [];
+        for(let existingGenre of existingGenres)
+        {
+            delete(genreToIds[existingGenre.name.toLowerCase()]);
+            existingGenreIds.push(existingGenre.idgenre);
+        }
+
+        let remainingGenres = Object.keys(genreToIds);
+        if(remainingGenres.length)
+        {
+            let newIds = await this.addNewGenres(idArtist, remainingGenres);
+            existingGenreIds = [...existingGenres, ...newIds];
+        }
+
+        return existingGenreIds;
+    }
+
+    async addGenresToArtist(idArtist, genres)
+    {
+        let idsToAdd = await this.getGenreIdsToAddToAuthor(idArtist, genres);
+        return this.addExistingGenresToArtist(idArtist, idsToAdd);
+    }
+
     async updateGenresForArtist(req, res)
     {
         let idArtist = req.body.idartist;
@@ -56,32 +96,8 @@ class GenreController extends Controller
 
         if(pendingGenresList)
         {
-            let genreToIds = {};
-            let existingGenreQuestionMarks = [];
-            let genreNames = [];
-
-            for(let pendingGenre of pendingGenresList)
-            {
-                genreToIds[pendingGenre.name.toLowerCase()] = -1;
-                existingGenreQuestionMarks.push('?');
-                genreNames.push(pendingGenre.name);
-            }
-            let existingGenres = await this.query(
-                `SELECT * FROM genres WHERE name IN(${existingGenreQuestionMarks.join(',')})`,
-                genreNames
-            );
-
-            let existingGenreIds = [];
-            for(let existingGenre of existingGenres)
-            {
-                delete(genreToIds[existingGenre.name.toLowerCase()]);
-                existingGenreIds.push(existingGenre.idgenre);
-            }
-
-            await this.addExistingGenresToArtist(idArtist, existingGenreIds);
-
-            let newIds = await this.addNewGenres(idArtist, Object.keys(genreToIds));
-            idGenres = [...idGenres, ...Object.keys(genreToIds), ...newIds];
+            let newIds = await this.getGenreIdsToAddToAuthor(idArtist, pendingGenresList);
+            idGenres = [...idGenres, ...newIds];
         }
 
         await this.addExistingGenresToArtist(idArtist, idGenres);

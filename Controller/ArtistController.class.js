@@ -66,11 +66,10 @@ class ArtistController extends Controller
      */
     async addArtist(req, res)
     {
-        let result = await this.query(
+        return this.query(
             "INSERT INTO artists (name, monthlyListeners) VALUES (?,?)",
-            [req.params.artistName, req.params.monthlyListeners]
+            [req.body.name, req.body.monthlyListeners]
         );
-        res.json(result);
     }
 
     async deleteArtist(req, res)

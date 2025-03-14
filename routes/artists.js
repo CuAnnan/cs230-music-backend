@@ -19,6 +19,19 @@ router.delete('/:idArtist', (req, res, next)=>{
     controller.deleteArtist(req, res).catch(next);
 });
 
+router.post('/', (req, res, next)=>{
+    controller.addArtist(req, res).then((newArtist)=>{
+        genreController.addGenresToArtist(newArtist.insertId, req.body.genres).then(
+            ()=> {
+                res.json({
+                    success: true,
+                    idArtist: newArtist.insertId
+                });
+            }
+        )
+    }).catch(next);
+});
+
 router.patch('/', (req, res, next)=>{
     genreController.updateGenresForArtist(req, res)
         .then(()=>{
