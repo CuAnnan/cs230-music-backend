@@ -3,8 +3,8 @@ import ArtistController from '../Controller/ArtistController.class.js';
 import GenreController from '../Controller/GenreController.class.js';
 
 const router = express.Router();
-let controller = new ArtistController();
-let genreController = new GenreController();
+let controller = ArtistController.getInstance();
+let genreController = GenreController.getInstance();
 
 
 router.get("/startingWith/:startingWith", (req, res, next)=>{

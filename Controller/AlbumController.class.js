@@ -3,6 +3,8 @@ import Controller from './Controller.class.js';
 
 class AlbumController extends Controller
 {
+    static instance;
+
     async getAlbumById(req, res)
     {
         let results = await this.query(
@@ -72,6 +74,15 @@ class AlbumController extends Controller
             [req.params.startingWith+"%"]
         );
         res.json(albums);
+    }
+
+    static getInstance()
+    {
+        if(!AlbumController.instance)
+        {
+            AlbumController.instance = new AlbumController();
+        }
+        return AlbumController.instance;
     }
 }
 

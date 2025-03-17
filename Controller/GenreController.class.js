@@ -2,6 +2,19 @@ import Controller from './Controller.class.js';
 
 class GenreController extends Controller
 {
+    static instance;
+
+    async getGenresByIdArtist(idArtist)
+    {
+        return await this.query(
+            "SELECT g.name, g.idGenre " +
+            "FROM artists_genres ag " +
+            "LEFT JOIN genres g USING (idGenre) " +
+            "WHERE ag.idArtist = ?",
+            [idArtist]
+        );
+    }
+
     async addExistingGenresToArtist(idArtist, idGenres)
     {
         let pairs = [];
@@ -102,6 +115,15 @@ class GenreController extends Controller
 
         await this.addExistingGenresToArtist(idArtist, idGenres);
 
+    }
+
+    static getInstance()
+    {
+        if(!GenreController.instance)
+        {
+            GenreController.instance = new GenreController();
+        }
+        return GenreController.instance;
     }
 }
 

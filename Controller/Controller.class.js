@@ -1,10 +1,12 @@
 import conf from '../conf.js';
 import mysql from 'mysql';
 
+
 class Controller
 {
     static db;
     static initialised = false;
+    static instance;
 
     async query(sqlStatement, fields)
     {
@@ -39,6 +41,11 @@ class Controller
             resolve();
         });
 
+    }
+
+    static getInstance()
+    {
+        throw new Error("getInstance not implemented.");
     }
 }
 

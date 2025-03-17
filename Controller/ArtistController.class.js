@@ -1,9 +1,12 @@
 import Controller from './Controller.class.js';
 import AlbumController from './AlbumController.class.js';
+import GenreController from './GenreController.class.js';
 import express from 'express';
 
 class ArtistController extends Controller
 {
+    static instance;
+
     /**
      * Method to get the entire Artist
      * @param {express.Request} req
@@ -17,16 +20,11 @@ class ArtistController extends Controller
             [req.params.idArtist]
         );
         let artist = artistQry[0];
-        artist.genres = [];
-        let genres = await this.query(
-            "SELECT g.name, g.idGenre " +
-                        "FROM artists_genres ag " +
-                        "LEFT JOIN genres g USING (idGenre) " +
-                        "WHERE ag.idArtist = ?",
-            [req.params.idArtist]
-        );
 
-        let albumController = new AlbumController();
+        let genreController = GenreController.getInstance();
+        let albumController = AlbumController.getInstance();
+
+        artist.genres = await genreController.getGenresByIdArtist(req.params.idArtist);
         artist.albums = await albumController.getAlbumByArtistId(req.params.idArtist);
 
         res.json(artist);
@@ -76,6 +74,15 @@ class ArtistController extends Controller
             [req.body.name, req.body.monthlyListeners, req.body.idartist]
         );
         res.json(result);
+    }
+
+    static getInstance()
+    {
+        if(!ArtistController.instance)
+        {
+            ArtistController.instance = new ArtistController();
+        }
+        return ArtistController.instance;
     }
 }
 
