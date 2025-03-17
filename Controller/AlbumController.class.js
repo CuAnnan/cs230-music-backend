@@ -1,5 +1,5 @@
 import Controller from './Controller.class.js';
-
+import SongController from './SongController.class.js';
 
 class AlbumController extends Controller
 {
@@ -16,25 +16,16 @@ class AlbumController extends Controller
             [req.params.idAlbum]
         );
         let album = results[0];
-        album.songs = [];
-        let songs = await this.query(
-            "SELECT s.idSong, s.name " +
-            "FROM songs s LEFT JOIN " +
-            "albums_songs a_s USING (idSong) " +
-            "WHERE a_s.idAlbum = ?",
-            [req.params.idAlbum]
-        );
-        for(let song of songs)
-        {
-            album.songs.push(song);
-        }
+
+        let songController = SongController.getInstance();
+        album.songs = await songController.getSongsByIdAlbum(req.params.idAlbum);
 
         res.json(results[0]);
     }
 
-    async getAlbumByArtistId(idArtist)
+    async getAlbumsByArtistId(idArtist)
     {
-        let albumsQry = await this.query(
+        return this.query(
             "SELECT a.name, a.idAlbum, COUNT(a_s.idSong) AS songCount " +
             "FROM albums_artists aa " +
             "LEFT JOIN albums a USING (idAlbum) " +
@@ -43,12 +34,6 @@ class AlbumController extends Controller
             "GROUP BY a_s.idAlbum",
             [idArtist]
         );
-        let albums = [];
-        for(let album of albumsQry)
-        {
-            albums.push(album);
-        }
-        return albums;
     }
 
     async addAlbum(req, res)

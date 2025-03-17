@@ -25,7 +25,7 @@ class ArtistController extends Controller
         let albumController = AlbumController.getInstance();
 
         artist.genres = await genreController.getGenresByIdArtist(req.params.idArtist);
-        artist.albums = await albumController.getAlbumByArtistId(req.params.idArtist);
+        artist.albums = await albumController.getAlbumsByArtistId(req.params.idArtist);
 
         res.json(artist);
     }
@@ -38,9 +38,9 @@ class ArtistController extends Controller
     async getArtistsStartingWith(req, res)
     {
         let artists = await this.query(
-        "SELECT idArtist, name FROM artists WHERE name LIKE ?",
-        [req.params.startingWith+"%"]
-    );
+            "SELECT idArtist, name FROM artists WHERE name LIKE ?",
+            [req.params.startingWith+"%"]
+        );
         res.json(artists);
     }
 
