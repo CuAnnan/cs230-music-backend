@@ -1,7 +1,8 @@
 import Controller from './Controller.class.js';
 
 
-class AlbumController extends Controller {
+class AlbumController extends Controller
+{
     async getAlbumById(req, res)
     {
         let results = await this.query(
@@ -29,6 +30,49 @@ class AlbumController extends Controller {
         res.json(results[0]);
     }
 
+    async getAlbumByArtistId(idArtist)
+    {
+        let albumsQry = await this.query(
+            "SELECT a.name, a.idAlbum, COUNT(a_s.idSong) AS songCount " +
+            "FROM albums_artists aa " +
+            "LEFT JOIN albums a USING (idAlbum) " +
+            "LEFT JOIN albums_songs a_s USING (idAlbum) " +
+            "WHERE aa.idArtist = ? " +
+            "GROUP BY a_s.idAlbum",
+            [idArtist]
+        );
+        let albums = [];
+        for(let album of albumsQry)
+        {
+            albums.push(album);
+        }
+        return albums;
+    }
+
+    async addAlbum(req, res)
+    {
+        let albumQuery = await this.query(
+            "INSERT INTO albums (name, releaseYear, numberListens) VALUES (?, ?, ?)",
+            [req.body.name, req.body.releaseYear, req.body.numberListens]
+        );
+
+        let joinerQry = await this.query(
+            "INSERT INTO albums_artists (idAlbum, idArtist) VALUES (?, ?)",
+            [albumQuery.insertId, req.body.idArtist]
+        );
+        res.json(
+            {idAlbum:albumQuery.insertId}
+        );
+    }
+
+    async getAlbumsStartingWith(req, res)
+    {
+        let albums = await this.query(
+            "SELECT idAlbum, name FROM albums WHERE name LIKE ?",
+            [req.params.startingWith+"%"]
+        );
+        res.json(albums);
+    }
 }
 
 export default AlbumController;

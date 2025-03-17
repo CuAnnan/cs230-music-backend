@@ -90,8 +90,8 @@ class GenreController extends Controller
         }
 
         await this.query(
-            `DELETE FROM artists_genres WHERE idGenre NOT IN (${ Array(idGenres.length).fill('?').join(',')})`,
-            idGenres
+            `DELETE FROM artists_genres WHERE idArtist= ? AND idGenre NOT IN (${ Array(idGenres.length).fill('?').join(',')})`,
+            [idArtist, ...idGenres]
         );
 
         if(pendingGenresList)

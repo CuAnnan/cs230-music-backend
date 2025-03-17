@@ -1,4 +1,5 @@
 import Controller from './Controller.class.js';
+import AlbumController from './AlbumController.class.js';
 import express from 'express';
 
 class ArtistController extends Controller
@@ -24,23 +25,9 @@ class ArtistController extends Controller
                         "WHERE ag.idArtist = ?",
             [req.params.idArtist]
         );
-        for(let genre of genres)
-        {
-            artist.genres.push(genre);
-        }
 
-        let albums = await this.query(
-            "SELECT a.name, a.idAlbum " +
-                        "FROM albums_artists aa " +
-                        "LEFT JOIN albums a USING (idAlbum) " +
-                        "WHERE aa.idArtist = ?",
-            [req.params.idArtist]
-        );
-        artist.albums = [];
-        for(let album of albums)
-        {
-            artist.albums.push(album);
-        }
+        let albumController = new AlbumController();
+        artist.albums = await albumController.getAlbumByArtistId(req.params.idArtist);
 
         res.json(artist);
     }
@@ -53,9 +40,9 @@ class ArtistController extends Controller
     async getArtistsStartingWith(req, res)
     {
         let artists = await this.query(
-            "SELECT idArtist, name FROM artists WHERE name LIKE ?",
-            [req.params.startingWith+"%"]
-        );
+        "SELECT idArtist, name FROM artists WHERE name LIKE ?",
+        [req.params.startingWith+"%"]
+    );
         res.json(artists);
     }
 
