@@ -15,6 +15,29 @@ class SongController extends Controller
         )).results;
     }
 
+    async getSongsStartingWith(req, res)
+    {
+        let albums = await this.query(
+            "SELECT idSong, name FROM songs WHERE name LIKE ?",
+            [req.params.startingWith+"%"]
+        );
+        res.json(albums.results);
+    }
+
+    async getSongById(req, res)
+    {
+        let songQry = await this.query(
+            "SELECT * FROM songs WHERE idSong = ?",
+            [req.params.idSong]
+        );
+        res.json(songQry.results[0]);
+    }
+
+    async addSong(req, res)
+    {
+
+    }
+
     static getInstance()
     {
         if(!SongController.instance)

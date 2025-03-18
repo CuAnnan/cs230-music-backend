@@ -16,12 +16,20 @@ class AlbumController extends Controller
                         "WHERE idAlbum = ?",
             [req.params.idAlbum]
         );
-        let album = query.results[0];
 
-        let songController = SongController.getInstance();
-        album.songs = await songController.getSongsByIdAlbum(req.params.idAlbum);
+        if(query.hasResults) {
+            let album = query.results[0];
 
-        res.json(album);
+            let songController = SongController.getInstance();
+            album.songs = await songController.getSongsByIdAlbum(req.params.idAlbum);
+
+            res.json(album);
+        }
+        else
+        {
+            res.status(404);
+            res.json({error:"No Album found"});
+        }
     }
 
     async getAlbumsByArtistId(idArtist)
@@ -39,6 +47,8 @@ class AlbumController extends Controller
 
     async addAlbum(req, res)
     {
+        await this.beginTransaction();
+
         let albumQuery = await this.query(
             "INSERT INTO albums (name, releaseYear, numberListens) VALUES (?, ?, ?)",
             [req.body.name, req.body.releaseYear, req.body.numberListens]
@@ -46,11 +56,32 @@ class AlbumController extends Controller
 
         let joinerQry = await this.query(
             "INSERT INTO albums_artists (idAlbum, idArtist) VALUES (?, ?)",
-            [albumQuery.insertId, req.body.idArtist]
+            [albumQuery.results.insertId, req.body.idArtist]
         );
+
+        await this.commit();
+
         res.json(
             {idAlbum:albumQuery.results.insertId}
         );
+    }
+
+    async deleteAlbum(req, res)
+    {
+        await this.beginTransaction();
+
+        await this.query(
+            "DELETE FROM albums_artists WHERE idAlbum = ?",
+            [req.params.idAlbum]
+        );
+
+        await this.query(
+            "DELETE FROM albums WHERE idAlbum = ?",
+            [req.params.idAlbum]
+        );
+
+        await this.commit();
+        res.json({success:true})
     }
 
     async getAlbumsStartingWith(req, res)

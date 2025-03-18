@@ -19,4 +19,8 @@ router.patch('/:idAlbum', (req, res, next)=>{
     controller.updateAlbum(req, res).catch(next);
 });
 
+router.delete("/:idAlbum", (req, res, next)=>{
+    controller.deleteAlbum(req, res).catch(next);
+});
+
 export default router;
