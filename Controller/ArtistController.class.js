@@ -19,7 +19,8 @@ class ArtistController extends Controller
             "SELECT * FROM artists WHERE idArtist = ?",
             [req.params.idArtist]
         );
-        let artist = artistQry[0];
+
+        let artist = artistQry.results[0];
 
         let genreController = GenreController.getInstance();
         let albumController = AlbumController.getInstance();
@@ -41,7 +42,7 @@ class ArtistController extends Controller
             "SELECT idArtist, name FROM artists WHERE name LIKE ?",
             [req.params.startingWith+"%"]
         );
-        res.json(artists);
+        res.json(artists.results);
     }
 
     /**
@@ -51,10 +52,10 @@ class ArtistController extends Controller
      */
     async addArtist(req, res)
     {
-        return this.query(
+        return await (this.query(
             "INSERT INTO artists (name, monthlyListeners) VALUES (?,?)",
             [req.body.name, req.body.monthlyListeners]
-        );
+        )).results;
     }
 
     async deleteArtist(req, res)
@@ -68,12 +69,19 @@ class ArtistController extends Controller
 
     async updateArtist(req, res)
     {
-        //console.log(req);
         let result = await this.query(
             "UPDATE artists SET name = ?, monthlyListeners = ? WHERE idArtist = ?",
             [req.body.name, req.body.monthlyListeners, req.body.idartist]
         );
-        res.json(result);
+        res.json(result.results);
+    }
+
+    async getArtistByName(name)
+    {
+        return (await this.query(
+            "SELECT * FROM artists WHERE name = ?",
+            [name]
+        )).results[0];
     }
 
     static getInstance()

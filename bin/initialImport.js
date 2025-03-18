@@ -31,7 +31,8 @@ async function importArtists()
                 genres
             };
             artistMap[name] = artist;
-            let result = await controller.query(sqlString, [artist.name, artist.monthlyListens]);
+            let query = await controller.query(sqlString, [artist.name, artist.monthlyListens]);
+            let result = query.results;
             artist.id = result.insertId;
         }
     }
@@ -42,8 +43,8 @@ async function importGenres()
     const sqlString = "INSERT INTO genres (name) VALUES (?)";
     for(let name in genreMap)
     {
-        let result = await controller.query(sqlString, [name]);
-        genreMap[name] = result.insertId;
+        let query = await controller.query(sqlString, [name]);
+        genreMap[name] = query.results.insertId;
     }
 }
 
@@ -79,12 +80,12 @@ async function importAlbums()
             let [artistName, albumName, year, listens, ...songs] = line.split(',');
             songs = songs.filter(n=>n);
             let albumResult = await controller.query(albumSQLString, [albumName, listens, year]);
-            let albumId = albumResult.insertId;
+            let albumId = albumResult.results.insertId;
             await controller.query(albumArtistSQLString, [albumId, artistMap[artistName].id]);
             for(let song of songs)
             {
                 let songResult = await controller.query(songSQLString, [song, year]);
-                let songId = songResult.insertId;
+                let songId = songResult.results.insertId;
                 await controller.query(albumSongSQLString, [albumId, songId]);
             }
         }

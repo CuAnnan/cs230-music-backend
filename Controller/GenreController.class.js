@@ -6,13 +6,13 @@ class GenreController extends Controller
 
     async getGenresByIdArtist(idArtist)
     {
-        return await this.query(
+        return (await this.query(
             "SELECT g.name, g.idGenre " +
             "FROM artists_genres ag " +
             "LEFT JOIN genres g USING (idGenre) " +
             "WHERE ag.idArtist = ?",
             [idArtist]
-        );
+        )).results;
     }
 
     async addExistingGenresToArtist(idArtist, idGenres)
@@ -37,10 +37,10 @@ class GenreController extends Controller
             genreNames
         );
 
-        let fetchQry = await this.query(
+        let fetchQry = (await this.query(
             `SELECT * FROM genres WHERE name in (${holder})`,
             genreNames
-        );
+        )).results;
         let newIds = [];
         for(let result of fetchQry)
         {
@@ -62,10 +62,10 @@ class GenreController extends Controller
             existingGenreQuestionMarks.push('?');
             genreNames.push(pendingGenre.name);
         }
-        let existingGenres = await this.query(
+        let existingGenres = (await this.query(
             `SELECT * FROM genres WHERE name IN(${existingGenreQuestionMarks.join(',')})`,
             genreNames
-        );
+        )).results;
 
         let existingGenreIds = [];
         for(let existingGenre of existingGenres)

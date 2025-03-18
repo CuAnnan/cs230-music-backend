@@ -15,4 +15,8 @@ router.get('/startingWith/:startingWith', (req, res, next) => {
     controller.getAlbumsStartingWith(req, res).catch(next);
 });
 
+router.patch('/:idAlbum', (req, res, next)=>{
+    controller.updateAlbum(req, res).catch(next);
+});
+
 export default router;

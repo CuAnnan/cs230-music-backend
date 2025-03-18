@@ -20,8 +20,12 @@ class Controller
                 {
                     results = {};
                 }
-                results.sql = qry.sql;
-                resolve(results);
+
+                resolve({
+                    results,
+                    sql:qry.sql,
+                    qry:qry
+                });
             });
         });
     }

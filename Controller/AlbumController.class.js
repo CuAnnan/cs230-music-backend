@@ -1,5 +1,6 @@
 import Controller from './Controller.class.js';
 import SongController from './SongController.class.js';
+import ArtistController from "./ArtistController.class.js";
 
 class AlbumController extends Controller
 {
@@ -7,7 +8,7 @@ class AlbumController extends Controller
 
     async getAlbumById(req, res)
     {
-        let results = await this.query(
+        let query = await this.query(
             "SELECT a.*, artists.name AS artist, artists.idArtist " +
                         "FROM albums a " +
                         "LEFT JOIN albums_artists a_a USING (idAlbum) " +
@@ -15,17 +16,17 @@ class AlbumController extends Controller
                         "WHERE idAlbum = ?",
             [req.params.idAlbum]
         );
-        let album = results[0];
+        let album = query.results[0];
 
         let songController = SongController.getInstance();
         album.songs = await songController.getSongsByIdAlbum(req.params.idAlbum);
 
-        res.json(results[0]);
+        res.json(album);
     }
 
     async getAlbumsByArtistId(idArtist)
     {
-        return this.query(
+        return (await this.query(
             "SELECT a.name, a.idAlbum, COUNT(a_s.idSong) AS songCount " +
             "FROM albums_artists aa " +
             "LEFT JOIN albums a USING (idAlbum) " +
@@ -33,7 +34,7 @@ class AlbumController extends Controller
             "WHERE aa.idArtist = ? " +
             "GROUP BY a_s.idAlbum",
             [idArtist]
-        );
+        )).results;
     }
 
     async addAlbum(req, res)
@@ -48,7 +49,7 @@ class AlbumController extends Controller
             [albumQuery.insertId, req.body.idArtist]
         );
         res.json(
-            {idAlbum:albumQuery.insertId}
+            {idAlbum:albumQuery.results.insertId}
         );
     }
 
@@ -58,7 +59,33 @@ class AlbumController extends Controller
             "SELECT idAlbum, name FROM albums WHERE name LIKE ?",
             [req.params.startingWith+"%"]
         );
-        res.json(albums);
+        res.json(albums.results);
+    }
+
+    async updateAlbum(req, res)
+    {
+        let artistController = ArtistController.getInstance();
+        let album = req.body;
+        let artist = await artistController.getArtistByName(album.artist);
+
+        if(!artist)
+        {
+            res.json({error: "No artist found"});
+            return;
+        }
+        album.idArtist = artist.idartist;
+
+        let updateAlbumQuery = await this.query(
+            "UPDATE albums SET name = ?, releaseYear = ?, numberListens = ? WHERE idAlbum = ?",
+            [album.name, album.releaseYear, album.numberListens, album.idalbum]
+        );
+
+        let updateArtistQuery = await this.query(
+            "UPDATE albums_artists SET idArtist = ? where idAlbum = ?",
+            [album.idArtist, album.idalbum]
+        );
+
+        res.json(album);
     }
 
     static getInstance()
