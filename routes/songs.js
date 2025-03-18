@@ -1,23 +1,27 @@
 import express from 'express';
-const router = express.Router();
+import SongController from '../Controller/SongController.class.js';
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.json({
-        status:"success",
-        results:[
-            {name:'Come Home'},
-            {name:"Teenage Angst"},
-            {name:"Bionic"},
-            {name:"36 Degrees"},
-            {name:"Hang on to your IQ"},
-            {name:"Nancy Boy"},
-            {name:"I Know"},
-            {name:"Bruise Pristine"},
-            {name:"Lady fof the Flowers"},
-            {name:"Swallow"}
-        ]
-    });
+const router = express.Router();
+const controller = SongController.getInstance();
+
+router.get('/:idSong', (req, res, next)=>{
+    controller.getSong(req, res).catch(next);
+});
+
+router.patch('/:idSong', (req, res, next)=>{
+    controller.updateSong(req, res).catch(next);
+});
+
+router.delete('/:idSong', (req, res, next)=>{
+    controller.deleteSong(req, res).catch(next);
+});
+
+router.get("/startingWith/:startingWith", (req, res, next)=>{
+    controller.getSongsStartingWith(req, res).catch(next);
+});
+
+router.post("/addSong", (req, res, next)=>{
+    controller.addSong(req, res).catch(next);
 });
 
 export default router;
